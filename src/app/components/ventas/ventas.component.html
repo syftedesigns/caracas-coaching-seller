@@ -1,0 +1,901 @@
+<header>
+    <mat-toolbar color="primary">
+        <mat-toolbar-row>
+            <span>Incluir Módulo de ventas</span>
+        </mat-toolbar-row>
+    </mat-toolbar>
+</header>
+<section>
+    <div class="row text-center">
+        <div class="col-sm text-center">
+            <mat-card>
+                <form #formIntegration="ngForm" ngNativeValidate (ngSubmit)="StartIntegration(formIntegration);">
+                    <div class="form-group">
+                        <!-- Esto lo que hará es habilitar formularios dependiendo de que módulos se desea integrar al curso -->
+                        <mat-form-field appearance="fill" class="w-100">
+                            <mat-label>¿Qué módulos deseas integrar en este curso?</mat-label>
+                            <mat-select name="operation" ngModel (selectionChange)="ChangeValuesForm($event.value);" placeholder="Selecciona el tipo de integración">
+                                <mat-option value="abierta">Solo Presencial</mat-option>
+                                <mat-option value="company">Solo Company</mat-option>
+                                <mat-option value="medida">Solo A la medida</mat-option>
+                                <mat-option value="semi">Semi presencial</mat-option>
+                                <mat-option value="a-c">Disponible presencial y Company</mat-option>
+                                <mat-option value="a-m">Disponible presencial y a Medida</mat-option>
+                                <mat-option value="c-m">Disponible Company, A medida</mat-option>
+                                <mat-option value="all">Disponible presencial, Company, A medida</mat-option>
+                            </mat-select>
+                            <mat-hint>
+                                <mat-icon matSuffix>warning</mat-icon>&nbsp; Elige la disponibilidad que quieres para este curso, en base a las opciones que elijás se visualizará como pestañas para el cliente por ejemplo: Opción: [Disponible Abierta y Company] = Solo tendrá
+                                disponible Abierta y Company, no incluirá a la Medida
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                    <!--  -->
+                    <div class="space-30"></div>
+                    <fieldset *ngIf="formType !== ''" [ngSwitch]="formType">
+                        <div *ngSwitchCase="'abierta'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio primer inscrito
+                                        </mat-label>
+                                        <input required name="lp_price_1" [(ngModel)]="moduleData.lp_price_1" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            2º inscrito y sucesivos
+                                        </mat-label>
+                                        <input required name="lp_price_2" [(ngModel)]="moduleData.lp_price_2" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Fecha disponible
+                                        </mat-label>
+                                        <input required name="lp_date_available" [(ngModel)]="moduleData.lp_date_available" matInput [matDatepicker]="picker" placeholder="Click en el calendario, para desplegar la ayuda">
+                                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                        Crear módulo
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'company'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio In Company
+                                        </mat-label>
+                                        <input required name="lp_price_group" [(ngModel)]="moduleData.price_group" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Max de personas
+                                        </mat-label>
+                                        <input required name="lp_group_max" [(ngModel)]="moduleData.lp_group_max" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                            Crear módulo
+                                    </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'medida'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <fieldset>
+                                <input type="hidden" name="medida" ngModel="1">
+                            </fieldset>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                            Crear módulo
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'semi'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio primer inscrito
+                                        </mat-label>
+                                        <input required name="lp_price_1" [(ngModel)]="moduleData.lp_price_1" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            2º inscrito y sucesivos
+                                        </mat-label>
+                                        <input required name="lp_price_2" [(ngModel)]="moduleData.lp_price_2" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Fecha disponible
+                                        </mat-label>
+                                        <input required name="lp_date_available" [(ngModel)]="moduleData.lp_date_available" matInput [matDatepicker]="picker" placeholder="Click en el calendario, para desplegar la ayuda">
+                                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                            Crear módulo
+                                    </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'a-c'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio primer inscrito
+                                        </mat-label>
+                                        <input required name="lp_price_1" [(ngModel)]="moduleData.lp_price_1" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            2º inscrito y sucesivos
+                                        </mat-label>
+                                        <input required name="lp_price_2" [(ngModel)]="moduleData.lp_price_2" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Fecha disponible
+                                        </mat-label>
+                                        <input required name="lp_date_available" [(ngModel)]="moduleData.lp_date_available" matInput [matDatepicker]="picker" placeholder="Click en el calendario, para desplegar la ayuda">
+                                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio In Company
+                                        </mat-label>
+                                        <input required name="lp_price_group" [(ngModel)]="moduleData.price_group" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Max de personas
+                                        </mat-label>
+                                        <input required name="lp_group_max" [(ngModel)]="moduleData.lp_group_max" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                            </div>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                            Crear módulo
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'a-m'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio primer inscrito
+                                        </mat-label>
+                                        <input required name="lp_price_1" [(ngModel)]="moduleData.lp_price_1" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            2º inscrito y sucesivos
+                                        </mat-label>
+                                        <input required name="lp_price_2" [(ngModel)]="moduleData.lp_price_2" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Fecha disponible
+                                        </mat-label>
+                                        <input required name="lp_date_available" [(ngModel)]="moduleData.lp_date_available" matInput [matDatepicker]="picker" placeholder="Click en el calendario, para desplegar la ayuda">
+                                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <fieldset>
+                                <input type="hidden" name="medida" ngModel="1">
+                            </fieldset>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                            Crear módulo
+                                    </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'c-m'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio In Company
+                                        </mat-label>
+                                        <input required name="lp_price_group" [(ngModel)]="moduleData.price_group" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Max de personas
+                                        </mat-label>
+                                        <input required name="lp_group_max" [(ngModel)]="moduleData.lp_group_max" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <fieldset>
+                                    <input type="hidden" name="medida" ngModel="1">
+                                </fieldset>
+                            </div>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                                Crear módulo
+                                        </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchCase="'all'" class="form-group">
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Lugar donde se llevará a cabo el curso
+                                        </mat-label>
+                                        <input required name="lp_room" [(ngModel)]="moduleData.lp_room" matInput placeholder="Ej: Aulas de caracas coaching" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">apartment</mat-icon>
+                                        <mat-hint>
+                                            Donde se impartirá el curso, como aula, sala, sedes, entre otros.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                    <div class="space-20"></div>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Código de Referencia
+                                        </mat-label>
+                                        <input required name="lp_ref" [(ngModel)]="moduleData.lp_ref" matInput placeholder="Ej: 20A01" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">emoji_flags</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Duración
+                                        </mat-label>
+                                        <input required name="lp_dur" [(ngModel)]="moduleData.lp_dur" matInput placeholder="Ej: 3 dias, 14 horas" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">timer</mat-icon>
+                                        <mat-hint>
+                                            Tiempo aproximado que durará el curso.
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Ubicación
+                                        </mat-label>
+                                        <input required name="lp_location" [(ngModel)]="moduleData.lp_location" matInput placeholder="Ej: Caracas, Valencia, Maracaibo" type="text">
+                                        <mat-icon matSuffix class="material-icons text-white">room</mat-icon>
+                                        <mat-hint>
+                                            Selecciona la ciudad donde se llevará a cabo el curso <b>separadas por ',' en caso de varias ciudades</b>
+                                        </mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="space-20"></div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio primer inscrito
+                                        </mat-label>
+                                        <input required name="lp_price_1" [(ngModel)]="moduleData.lp_price_1" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            2º inscrito y sucesivos
+                                        </mat-label>
+                                        <input required name="lp_price_2" [(ngModel)]="moduleData.lp_price_2" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Fecha disponible
+                                        </mat-label>
+                                        <input required name="lp_date_available" [(ngModel)]="moduleData.lp_date_available" matInput [matDatepicker]="picker" placeholder="Click en el calendario, para desplegar la ayuda">
+                                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                        <mat-datepicker #picker></mat-datepicker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Divisa
+                                        </mat-label>
+                                        <mat-select name="lp_currency" [(ngModel)]="moduleData.lp_currency" placeholder="Selecciona la divisa">
+                                            <mat-option value="USD">USD</mat-option>
+                                            <mat-option value="EUR">EUR</mat-option>
+                                            <mat-option value="GBP">GBP</mat-option>
+                                        </mat-select>
+                                        <mat-icon matSuffix class="material-icons text-white">money</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Precio In Company
+                                        </mat-label>
+                                        <input required name="lp_price_group" [(ngModel)]="moduleData.price_group" matInput placeholder="Ej: 500" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_strong</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Max de personas
+                                        </mat-label>
+                                        <input required name="lp_group_max" [(ngModel)]="moduleData.lp_group_max" matInput placeholder="Ej: 300" type="number">
+                                        <mat-icon matSuffix class="material-icons text-white">hdr_weak</mat-icon>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm">
+                                    <mat-form-field appearance="fill" class="w-100">
+                                        <mat-label>
+                                            Activar modo On-line?
+                                        </mat-label>
+                                        <mat-select required name="lp_online" [(ngModel)]="moduleData.lp_online" placeholder="Selecciona una opción">
+                                            <mat-option value="1">Activo</mat-option>
+                                            <mat-option value="0">Inactivo</mat-option>
+                                        </mat-select>
+                                        <mat-hint>Selecciona la opción correspondiente, para identificar si el curso podrá verse Online o unicamente presencial</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <fieldset>
+                                <input type="hidden" name="medida" ngModel="1">
+                            </fieldset>
+                            <div class="space-15"></div>
+                            <div class="form-group">
+                                <button type="submit" [disabled]="loading" mat-raised-button color="primary">
+                                                Crear módulo
+                                        </button>
+                            </div>
+                        </div>
+                        <div *ngSwitchDefault class="form-group">
+                        </div>
+                    </fieldset>
+                </form>
+            </mat-card>
+        </div>
+        <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+    </div>
+</section>
